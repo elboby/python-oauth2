@@ -807,8 +807,11 @@ class Client2(object):
         response, content = self.http.request(uri)
         if not response.status == 200:
             raise Error(str(response.status))
-        response_args = simplejson.loads(content)
-
+        try:
+            response_args = simplejson.loads(content)
+        except ValueError:
+            response_args = dict([part.split('=') for part in content.split('&')])
+        
         error = response_args.pop('error', None)
         if error is not None:
             raise Error(error)
